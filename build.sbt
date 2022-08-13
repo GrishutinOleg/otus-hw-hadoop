@@ -6,3 +6,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "otus-hw-hadoop"
   )
+
+libraryDependencies ++= Seq(
+  "org.apache.hadoop" % "hadoop-client" % "3.2.2"
+)
