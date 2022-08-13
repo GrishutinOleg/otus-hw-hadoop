@@ -5,7 +5,9 @@ import java.io.FileInputStream
 import java.io.InputStream
 import org.apache.hadoop.conf._
 import org.apache.hadoop.fs._
+
 import java.net.URI
+import scala.::
 
 
 
@@ -50,55 +52,109 @@ object HDFSFileService extends App {
     }
   }
 
-  val initialsrs: Array[String] = Array(
-    "C:\\otus_spark_developer\\hadoop_course_homework-master\\hadoop_course_homework-master\\hw1\\sample_data\\stage\\date=2020-12-01\\part-0000.csv"
-    ,"C:\\otus_spark_developer\\hadoop_course_homework-master\\hadoop_course_homework-master\\hw1\\sample_data\\stage\\date=2020-12-03\\part-0000.csv"
-    ,"C:\\otus_spark_developer\\hadoop_course_homework-master\\hadoop_course_homework-master\\hw1\\sample_data\\stage\\date=2020-12-03\\part-0001.csv"
-    ,"C:\\otus_spark_developer\\hadoop_course_homework-master\\hadoop_course_homework-master\\hw1\\sample_data\\stage\\date=2020-12-03\\part-0002.csv"
-  )
-  val initialfolder = new Path("C:\\otus_spark_developer\\hadoop_course_homework-master\\hadoop_course_homework-master\\hw1\\sample_data\\stage")
-  val desthdfsfolder = new Path("C:\\hadoop\\data\\datanode")
-
-  //val rescoping = fileSystem copyFromLocalFile(initialfolder, desthdfsfolder)
   val filessrc = new Path("\\stage")
 
-  val filesdst = new Path("\\ods")
-
   val test1 = createFolder("\\ods")
-  val test4 = new Path("\\stage\\date=2020-12-03\\part-0001.csv")
-  val test2 = fileSystem.getFileStatus(test4)
-  //println(test2)
-  //println(test2.isDirectory)
-  //val test5 = test2.path
-  //println(test2.getPath)
-  //println(test5.getClass)
 
-  val lstfolders1 = fileSystem.listLocatedStatus(filessrc)
+  //val test4 = new Path("\\stage\\date=2020-12-03\\part-0001.csv")
+  //val test2 = fileSystem.getFileStatus(test4)
 
-  while (lstfolders1.hasNext) {
-    val test11 = lstfolders1.next().getPath
-    println(test11)
-    val lstfilestest1 = fileSystem.listFiles(test11, true)
-    val test14 = test11.toString
-    while (lstfilestest1.hasNext) {
-      val test7 = lstfilestest1.next().getPath
-      //println(lstfilestest1.next().getPath)
-      println(test7)
-      val test8 = test7.toString
-      //println(test8)
-      //println(test8.getClass)
-      val test9 = test8.endsWith(".csv")
-      println(test9)
-      if (test9) println("new path is  " ++ test14.replace("stage", "ods"))
+  val lstfolders = fileSystem.listLocatedStatus(filessrc)
+
+  while (lstfolders.hasNext) {
+    val folderpath = lstfolders.next().getPath
+    println(folderpath)
+    val lstfiles = fileSystem.listFiles(folderpath, true)
+    val folderpathstring = folderpath.toString
+    while (lstfiles.hasNext) {
+      val filepath = lstfiles.next().getPath
+
+      println(filepath)
+      val filepathstring = filepath.toString
+      //println(filepathstring)
+      //println(filepathstring.getClass)
+      val isfilepathstring = filepathstring.endsWith(".csv")
+      println(isfilepathstring)
+      if (isfilepathstring)
+        {
+          val creatingfolder = createFolder(folderpathstring.replace("stage", "ods"))
+          val removingfile = fileSystem.rename(filepath,
+          new Path(filepathstring.replace("stage", "ods"))
+          )
+        }
+      else {val isremovingfile = removeFile(filepathstring)}
     }
     //println(lstfolders1.next())
   }
 
+  val filesdst = new Path("\\ods")
 
+  val lstdestfolders = fileSystem.listLocatedStatus(filesdst)
+
+
+
+  while (lstdestfolders.hasNext) {
+    val folderdestpath = lstdestfolders.next().getPath
+    println(folderdestpath)
+    val lstdestfiles = fileSystem.listFiles(folderdestpath, true)
+    val folderpathstring = folderdestpath.toString
+    //val lstdestfiles2 = lstdestfiles.toString
+
+    //var clearfilelist = Nil
+    while (lstdestfiles.hasNext) {
+      val filedestpath = lstdestfiles.next().getPath
+      println(filedestpath)
+      val filedestpathstr = filedestpath.toString
+      if (!filedestpathstr.endsWith("part-0000.csv")) {
+        val uniting = fileSystem.concat(
+          new Path(folderpathstring ++ "/part-0000.csv")
+          ,Array(filedestpath))
+        val deleting = removeFile(filedestpathstr)
+      }
+      //val clearfilelist = clearfilelist :: filedestpath
+
+    }
+    //println(clearfilelist)
+
+  }
+
+
+
+  /*
+  val test16 = createFolder("hdfs://localhost:9000/test/date=2020-12-03")
+
+  val test17 = fileSystem.copyFromLocalFile(
+    new Path("hdfs://localhost:9000/stage/date=2020-12-03/part-0001.csv"),
+    new Path("hdfs://localhost:9000/test/date=2020-12-03/part-0001.csv") )
+
+  val test18 = fileSystem.copyFromLocalFile(
+    new Path("hdfs://localhost:9000/stage/date=2020-12-03/part-0000.csv"),
+    new Path("hdfs://localhost:9000/test/date=2020-12-03/part-0000.csv") )
+
+   */
 
 
 
 
   //println(lstfolders1)
+  /*
+
+  val test21 = new Path("hdfs://localhost:9000/test/stage/date=2020-12-03/part-0000.csv")
+
+  val test22 = Array(
+    new Path("hdfs://localhost:9000/test/stage/date=2020-12-03/part-0001.csv")
+    //,new Path("hdfs://localhost:9000/test/stage/date=2020-12-03/part-0000.csv")
+    ,new Path("hdfs://localhost:9000/test/stage/date=2020-12-03/part-0002.csv")
+  )
+
+  val test23 = fileSystem.concat(test21, test22)
+
+   */
+/*
+  val test24 = fileSystem.rename(
+    new Path("hdfs://localhost:9000/stage/date=2020-12-03/part-0001.csv"),
+    new Path("hdfs://localhost:9000/test/part-0001.csv")
+  )
+*/
 
 }
