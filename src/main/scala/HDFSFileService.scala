@@ -79,6 +79,7 @@ object HDFSFileService extends App {
     val test11 = lstfolders1.next().getPath
     println(test11)
     val lstfilestest1 = fileSystem.listFiles(test11, true)
+    val test14 = test11.toString
     while (lstfilestest1.hasNext) {
       val test7 = lstfilestest1.next().getPath
       //println(lstfilestest1.next().getPath)
@@ -88,9 +89,12 @@ object HDFSFileService extends App {
       //println(test8.getClass)
       val test9 = test8.endsWith(".csv")
       println(test9)
+      if (test9) println("new path is  " ++ test14.replace("stage", "ods"))
     }
     //println(lstfolders1.next())
   }
+
+
 
 
 
