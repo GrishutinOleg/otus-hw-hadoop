@@ -51,30 +51,46 @@ object HDFSFileService extends App {
       fileSystem.mkdirs(path)
     }
   }
+  println("before transaction")
 
   val filessrc = new Path("\\stage")
 
   val test1 = createFolder("\\ods")
 
-  //val test4 = new Path("\\stage\\date=2020-12-03\\part-0001.csv")
-  //val test2 = fileSystem.getFileStatus(test4)
+  val filesdst = new Path("\\ods")
+
+  println("total files size of stage folder" ++ fileSystem.getUsed(filessrc).toString)
+
+  val listfilestagebefore = fileSystem.listFiles(filessrc, true)
+  while (listfilestagebefore.hasNext){
+    val pathlisttagebefore = listfilestagebefore.next().getPath
+    println(pathlisttagebefore)
+  }
+  println("total files size of ods folder" ++ fileSystem.getUsed(filesdst).toString)
+  val listfileodsbefore = fileSystem.listFiles(filesdst, true)
+  while (listfileodsbefore.hasNext) {
+    val pathlisttagebefore = listfileodsbefore.next().getPath
+    println(pathlisttagebefore)
+  }
+
+
 
   val lstfolders = fileSystem.listLocatedStatus(filessrc)
 
   while (lstfolders.hasNext) {
     val folderpath = lstfolders.next().getPath
-    println(folderpath)
+    //println(folderpath)
     val lstfiles = fileSystem.listFiles(folderpath, true)
     val folderpathstring = folderpath.toString
     while (lstfiles.hasNext) {
       val filepath = lstfiles.next().getPath
 
-      println(filepath)
+      //println(filepath)
       val filepathstring = filepath.toString
       //println(filepathstring)
       //println(filepathstring.getClass)
       val isfilepathstring = filepathstring.endsWith(".csv")
-      println(isfilepathstring)
+      //println(isfilepathstring)
       if (isfilepathstring)
         {
           val creatingfolder = createFolder(folderpathstring.replace("stage", "ods"))
@@ -87,7 +103,7 @@ object HDFSFileService extends App {
     //println(lstfolders1.next())
   }
 
-  val filesdst = new Path("\\ods")
+
 
   val lstdestfolders = fileSystem.listLocatedStatus(filesdst)
 
@@ -95,15 +111,21 @@ object HDFSFileService extends App {
 
   while (lstdestfolders.hasNext) {
     val folderdestpath = lstdestfolders.next().getPath
-    println(folderdestpath)
+    //println(folderdestpath)
     val lstdestfiles = fileSystem.listFiles(folderdestpath, true)
     val folderpathstring = folderdestpath.toString
-    //val lstdestfiles2 = lstdestfiles.toString
+
+
+    val isdest0000filepath = fileSystem.exists(new Path(folderpathstring ++ "/part-0000.csv"))
+
+    if (!isdest0000filepath) {
+      val creating0000file = fileSystem.createNewFile(new Path(folderpathstring ++ "/part-0000.csv"))
+    }
 
     //var clearfilelist = Nil
     while (lstdestfiles.hasNext) {
       val filedestpath = lstdestfiles.next().getPath
-      println(filedestpath)
+      //println(filedestpath)
       val filedestpathstr = filedestpath.toString
       if (!filedestpathstr.endsWith("part-0000.csv")) {
         val uniting = fileSystem.concat(
@@ -117,6 +139,22 @@ object HDFSFileService extends App {
     //println(clearfilelist)
 
   }
+  println("after transaction")
+
+  println("total files size of stage folder" ++ fileSystem.getUsed(filessrc).toString)
+
+  val listfilestageafter = fileSystem.listFiles(filessrc, true)
+  while (listfilestageafter.hasNext){
+    val pathlisttageafter = listfilestageafter.next().getPath
+    println(pathlisttageafter)
+  }
+  println("total files size of ods folder" ++ fileSystem.getUsed(filesdst).toString)
+  val listfileodsafter = fileSystem.listFiles(filesdst, true)
+  while (listfileodsafter.hasNext) {
+    val pathlisttageafter = listfileodsafter.next().getPath
+    println(pathlisttageafter)
+  }
+
 
 
 
